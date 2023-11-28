@@ -96,6 +96,8 @@ local function sign_cache_add(win, signs, reassign)
   end
 end
 
+local last_cursor
+
 --- Store click args and fn.getmousepos() in table.
 --- Set current window and mouse position to clicked line.
 local function get_click_args(minwid, clicks, button, mods)
@@ -107,13 +109,22 @@ local function get_click_args(minwid, clicks, button, mods)
     mousepos = f.getmousepos(),
   }
   a.nvim_set_current_win(args.mousepos.winid)
+  last_cursor = a.nvim_win_get_cursor(args.mousepos.winid)
   a.nvim_win_set_cursor(0, {args.mousepos.line, 0})
   return args
 end
 
-local function call_click_func(name, args)
-  local handler = cfg.clickhandlers[name]
-  if handler then S(function() handler(args) end) end
+local function call_click_func(name, hl, args)
+  local handler = cfg.clickhandlers[name] or cfg.clickhandlers[hl]
+    if handler then
+    S(function()
+      handler(args)
+      if last_cursor then
+        vim.api.nvim_win_set_cursor(args.mousepos.winid, last_cursor)
+        last_cursor = nil
+      end
+    end)
+  end
 end
 
 --- Execute fold column click callback.
