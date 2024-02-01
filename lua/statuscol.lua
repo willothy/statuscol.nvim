@@ -114,8 +114,6 @@ local function get_click_args(minwid, clicks, button, mods)
   }
   -- Avoid handling cmdline click, may be removed in 0.9.1: https://github.com/neovim/neovim/pull/23163
   if args.mousepos.winid == 0 then return end
-  a.nvim_set_current_win(args.mousepos.winid)
-  a.nvim_win_set_cursor(0, {args.mousepos.line, 0})
   return args
 end
 
